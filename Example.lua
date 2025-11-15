@@ -1,33 +1,83 @@
--- Example usage of Custom UI Library (Sidebar Style)
--- Load your library
+-- Modern UI Library Example with Configs & Features
 local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/joshisfit/joshlib/refs/heads/main/Library.lua'))()
 
--- Create the main window
+-- Create Window
 local Window = Library:CreateWindow({
-    Title = 'my script',
+    Title = 'RUST',
+    Description = 'premium cheats',
     Center = true,
     AutoShow = true,
 })
 
--- Create tabs with custom icons (use Roblox asset IDs)
--- Find icons at: https://create.roblox.com/marketplace/asset or use rbxassetid numbers
-local LegitTab = Window:AddTab('legit', 6031302931) -- Example icon ID
-local PlayersTab = Window:AddTab('players', 6031302931)
-local EntitiesTab = Window:AddTab('entities', 6031302931)
-local MiscTab = Window:AddTab('misc', 6031302931)
-local MainTab = Window:AddTab('main', 6031302931)
-local MovementTab = Window:AddTab('movement', 6031302931)
-local VisualsTab = Window:AddTab('visuals', 6031302931)
-local SettingsTab = Window:AddTab('settings', 6031302931)
+-- Create Tabs (with custom icon IDs)
+local LegitTab = Window:AddTab('legitbot', 6031302931)
+local MiscTab = Window:AddTab('misc', 6031154871)
+local VisualsTab = Window:AddTab('visuals', 6031097225)
+local SettingsTab = Window:AddTab('settings', 6034287594)
 
--- LEGIT TAB - Modifications Section
-local ModificationsSection = LegitTab:AddSection('modifications')
+-- ========== LEGITBOT TAB ==========
+local AimbotSection = LegitTab:AddSection('Aimbot', 'left')
+
+AimbotSection:AddToggle('Aimbot', {
+    Text = 'aimbot',
+    Default = false,
+    Callback = function(Value)
+        print('Aimbot:', Value)
+    end
+})
+
+AimbotSection:AddToggle('Smoothing', {
+    Text = 'smoothing',
+    Default = true,
+    Callback = function(Value)
+        print('Smoothing:', Value)
+    end
+})
+
+AimbotSection:AddToggle('Curving', {
+    Text = 'curving',
+    Default = false,
+    Callback = function(Value)
+        print('Curving:', Value)
+    end
+})
+
+AimbotSection:AddToggle('SilentAim', {
+    Text = 'silent aim',
+    Default = false,
+    Callback = function(Value)
+        print('Silent Aim:', Value)
+    end
+})
+
+AimbotSection:AddToggle('FoV', {
+    Text = 'FoV',
+    Default = true,
+    Callback = function(Value)
+        print('FoV:', Value)
+    end
+})
+
+AimbotSection:AddSlider('Radius', {
+    Text = 'radius',
+    Default = 125,
+    Min = 0,
+    Max = 500,
+    Rounding = 0,
+    Suffix = 'px',
+    Callback = function(Value)
+        print('Radius:', Value)
+    end
+})
+
+-- Right Column for Legitbot
+local ModificationsSection = LegitTab:AddSection('modifications', 'right')
 
 ModificationsSection:AddToggle('Enabled', {
     Text = 'enabled',
     Default = true,
     Callback = function(Value)
-        print('Enabled:', Value)
+        print('Modifications Enabled:', Value)
     end
 })
 
@@ -69,6 +119,7 @@ ModificationsSection:AddSlider('Pitch', {
     Min = 0,
     Max = 100,
     Rounding = 0,
+    Suffix = '%',
     Callback = function(Value)
         print('Pitch:', Value)
     end
@@ -80,6 +131,7 @@ ModificationsSection:AddSlider('Yaw', {
     Min = 0,
     Max = 100,
     Rounding = 0,
+    Suffix = '%',
     Callback = function(Value)
         print('Yaw:', Value)
     end
@@ -91,6 +143,7 @@ ModificationsSection:AddSlider('ADS', {
     Min = 0,
     Max = 100,
     Rounding = 0,
+    Suffix = '%',
     Callback = function(Value)
         print('ADS:', Value)
     end
@@ -102,13 +155,13 @@ ModificationsSection:AddSlider('Speed', {
     Min = 0,
     Max = 100,
     Rounding = 0,
+    Suffix = '%',
     Callback = function(Value)
         print('Speed:', Value)
     end
 })
 
--- LEGIT TAB - Removals Section
-local RemovalsSection = LegitTab:AddSection('removals')
+local RemovalsSection = LegitTab:AddSection('removals', 'right')
 
 RemovalsSection:AddToggle('FallDamage', {
     Text = 'fall damage',
@@ -118,21 +171,55 @@ RemovalsSection:AddToggle('FallDamage', {
     end
 })
 
--- LEGIT TAB - Funny Section
-local FunnySection = LegitTab:AddSection('funny')
+-- ========== MISC TAB ==========
+local MiscSection = MiscTab:AddSection('misc', 'left')
 
-FunnySection:AddToggle('Jitter', {
-    Text = 'jitter',
+MiscSection:AddToggle('BunnyHop', {
+    Text = 'bunny hop',
     Default = false,
     Callback = function(Value)
-        print('Jitter:', Value)
+        print('Bunny Hop:', Value)
     end
 })
 
--- MISC TAB Example
-local MiscSection = MiscTab:AddSection('misc settings')
+MiscSection:AddToggle('AutoSprint', {
+    Text = 'auto sprint',
+    Default = false,
+    Callback = function(Value)
+        print('Auto Sprint:', Value)
+    end
+})
 
-MiscSection:AddToggle('AutoCollect', {
+MiscSection:AddToggle('NoClip', {
+    Text = 'noclip',
+    Default = false,
+    Callback = function(Value)
+        print('NoClip:', Value)
+    end
+})
+
+MiscSection:AddSlider('WalkSpeed', {
+    Text = 'walk speed',
+    Default = 16,
+    Min = 16,
+    Max = 100,
+    Rounding = 0,
+    Suffix = ' studs',
+    Callback = function(Value)
+        print('Walk Speed:', Value)
+    end
+})
+
+MiscSection:AddButton({
+    Text = 'respawn',
+    Func = function()
+        print('Respawning...')
+    end
+})
+
+local UtilitySection = MiscTab:AddSection('utility', 'right')
+
+UtilitySection:AddToggle('AutoCollect', {
     Text = 'auto collect',
     Default = false,
     Callback = function(Value)
@@ -140,68 +227,28 @@ MiscSection:AddToggle('AutoCollect', {
     end
 })
 
-MiscSection:AddButton({
-    Text = 'teleport to base',
-    Func = function()
-        print('Teleporting to base!')
+UtilitySection:AddToggle('AutoFarm', {
+    Text = 'auto farm',
+    Default = false,
+    Callback = function(Value)
+        print('Auto Farm:', Value)
     end
 })
 
-MiscSection:AddDropdown('GameMode', {
-    Values = {'Survival', 'Creative', 'Adventure'},
-    Default = 'Survival',
+UtilitySection:AddDropdown('FarmMode', {
+    Values = {'Wood', 'Stone', 'Metal', 'Sulfur'},
+    Default = 'Wood',
     Multi = false,
-    Text = 'game mode',
+    Text = 'farm mode',
     Callback = function(Value)
-        print('Game Mode:', Value)
+        print('Farm Mode:', Value)
     end
 })
 
--- MOVEMENT TAB Example
-local MovementSection = MovementTab:AddSection('movement')
+-- ========== VISUALS TAB ==========
+local ESPSection = VisualsTab:AddSection('esp', 'left')
 
-MovementSection:AddToggle('SpeedHack', {
-    Text = 'speed hack',
-    Default = false,
-    Callback = function(Value)
-        print('Speed Hack:', Value)
-    end
-})
-
-MovementSection:AddSlider('WalkSpeed', {
-    Text = 'walk speed',
-    Default = 16,
-    Min = 16,
-    Max = 100,
-    Rounding = 0,
-    Callback = function(Value)
-        print('Walk Speed:', Value)
-    end
-})
-
-MovementSection:AddToggle('Flight', {
-    Text = 'flight',
-    Default = false,
-    Callback = function(Value)
-        print('Flight:', Value)
-    end
-})
-
-MovementSection:AddSlider('FlightSpeed', {
-    Text = 'flight speed',
-    Default = 50,
-    Min = 10,
-    Max = 200,
-    Rounding = 0,
-    Callback = function(Value)
-        print('Flight Speed:', Value)
-    end
-})
-
--- VISUALS TAB Example
-local VisualsSection = VisualsTab:AddSection('esp')
-
-VisualsSection:AddToggle('PlayerESP', {
+ESPSection:AddToggle('PlayerESP', {
     Text = 'player esp',
     Default = false,
     Callback = function(Value)
@@ -209,15 +256,31 @@ VisualsSection:AddToggle('PlayerESP', {
     end
 })
 
-VisualsSection:AddToggle('ChamsESP', {
-    Text = 'chams',
+ESPSection:AddToggle('NameESP', {
+    Text = 'name esp',
     Default = false,
     Callback = function(Value)
-        print('Chams:', Value)
+        print('Name ESP:', Value)
     end
 })
 
-VisualsSection:AddToggle('Tracers', {
+ESPSection:AddToggle('DistanceESP', {
+    Text = 'distance esp',
+    Default = false,
+    Callback = function(Value)
+        print('Distance ESP:', Value)
+    end
+})
+
+ESPSection:AddToggle('BoxESP', {
+    Text = 'box esp',
+    Default = false,
+    Callback = function(Value)
+        print('Box ESP:', Value)
+    end
+})
+
+ESPSection:AddToggle('Tracers', {
     Text = 'tracers',
     Default = false,
     Callback = function(Value)
@@ -225,64 +288,155 @@ VisualsSection:AddToggle('Tracers', {
     end
 })
 
--- SETTINGS TAB Example
-local SettingsSection = SettingsTab:AddSection('ui settings')
+ESPSection:AddToggle('Chams', {
+    Text = 'chams',
+    Default = false,
+    Callback = function(Value)
+        print('Chams:', Value)
+    end
+})
 
-SettingsSection:AddButton({
+ESPSection:AddColorPicker('ESPColor', {
+    Default = Color3.fromRGB(100, 180, 255),
+    Text = 'esp color',
+    Callback = function(Value)
+        print('ESP Color:', Value)
+    end
+})
+
+local WorldSection = VisualsTab:AddSection('world', 'right')
+
+WorldSection:AddToggle('FullBright', {
+    Text = 'fullbright',
+    Default = false,
+    Callback = function(Value)
+        print('Fullbright:', Value)
+    end
+})
+
+WorldSection:AddToggle('NoFog', {
+    Text = 'no fog',
+    Default = false,
+    Callback = function(Value)
+        print('No Fog:', Value)
+    end
+})
+
+WorldSection:AddSlider('Ambient', {
+    Text = 'ambient',
+    Default = 50,
+    Min = 0,
+    Max = 100,
+    Rounding = 0,
+    Suffix = '%',
+    Callback = function(Value)
+        print('Ambient:', Value)
+    end
+})
+
+local CrosshairSection = VisualsTab:AddSection('crosshair', 'right')
+
+CrosshairSection:AddToggle('Crosshair', {
+    Text = 'custom crosshair',
+    Default = false,
+    Callback = function(Value)
+        print('Crosshair:', Value)
+    end
+})
+
+CrosshairSection:AddSlider('CrosshairSize', {
+    Text = 'size',
+    Default = 10,
+    Min = 5,
+    Max = 50,
+    Rounding = 0,
+    Suffix = 'px',
+    Callback = function(Value)
+        print('Crosshair Size:', Value)
+    end
+})
+
+CrosshairSection:AddColorPicker('CrosshairColor', {
+    Default = Color3.fromRGB(255, 255, 255),
+    Text = 'color',
+    Callback = function(Value)
+        print('Crosshair Color:', Value)
+    end
+})
+
+-- ========== SETTINGS TAB ==========
+local UISection = SettingsTab:AddSection('ui settings', 'left')
+
+UISection:AddButton({
     Text = 'unload ui',
     Func = function()
         Window:Unload()
     end
 })
 
-SettingsSection:AddInput('ConfigName', {
-    Default = 'default',
-    Numeric = false,
-    Finished = true,
-    Text = 'config name',
-    Placeholder = 'Enter config name...',
+UISection:AddKeybind('MenuKeybind', {
+    Default = 'RightShift',
+    Text = 'menu toggle',
+    Mode = 'Toggle',
     Callback = function(Value)
-        print('Config Name:', Value)
+        print('Menu Keybind:', Value)
     end
 })
 
-SettingsSection:AddButton({
-    Text = 'save config',
-    Func = function()
-        print('Config saved!')
+UISection:AddColorPicker('ThemeColor', {
+    Default = Color3.fromRGB(100, 180, 255),
+    Text = 'theme color',
+    Callback = function(Value)
+        print('Theme Color:', Value)
+        -- Update theme here
     end
 })
 
-SettingsSection:AddButton({
-    Text = 'load config',
-    Func = function()
-        print('Config loaded!')
-    end
-})
+-- Config Section with Save/Load functionality
+Window:CreateConfigSection(SettingsTab)
 
-local InfoSection = SettingsTab:AddSection('information')
+local InfoSection = SettingsTab:AddSection('information', 'right')
 
 InfoSection:AddLabel('version: 1.0.0')
-InfoSection:AddLabel('created by: you')
-InfoSection:AddLabel('discord: discord.gg/your-server')
+InfoSection:AddLabel('created by: your name')
+InfoSection:AddLabel('discord: discord.gg/example')
+InfoSection:AddLabel(' ')
+InfoSection:AddLabel('press the search icon to')
+InfoSection:AddLabel('search for features')
 
--- Accessing values later
-print('Current Speed value:', Options.Speed.Value)
-print('Current Enabled toggle:', Toggles.Enabled.Value)
+-- Notifications Example
+Window:Notify({
+    Title = 'UI Loaded!',
+    Text = 'Welcome to the UI Library',
+    Duration = 3,
+    Icon = 6031302931
+})
 
--- OnChanged callbacks
-Toggles.Enabled:OnChanged(function()
-    print('Enabled changed to:', Toggles.Enabled.Value)
+task.wait(3)
+
+Window:Notify({
+    Title = 'Tip',
+    Text = 'Click the settings icon to customize colors',
+    Duration = 4,
+    Icon = 6031154871
+})
+
+-- Example: Accessing values
+print('Aimbot enabled:', Toggles.Aimbot.Value)
+print('Pitch value:', Options.Pitch.Value)
+
+-- Example: OnChanged callbacks
+Toggles.Aimbot:OnChanged(function()
+    print('Aimbot changed to:', Toggles.Aimbot.Value)
 end)
 
 Options.Pitch:OnChanged(function()
     print('Pitch changed to:', Options.Pitch.Value)
 end)
 
--- Cleanup on unload
+-- Cleanup
 Window:OnUnload(function()
     print('UI Unloaded!')
-    Library.Unloaded = true
 end)
 
-print('UI Library loaded successfully!')
+print('Modern UI Library loaded successfully!')
