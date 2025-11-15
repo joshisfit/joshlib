@@ -1,506 +1,423 @@
--- Modern UI Library Example Script
--- Load the library
-local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/joshisfit/joshlib/refs/heads/main/Library.lua'))()
+local Library = loadstring(game:HttpGet("YOUR_LIBRARY_URL_HERE"))()
 
--- Create Window
 local Window = Library:CreateWindow({
-    Title = 'Lunacy Solutions',
-    Center = true,
-    AutoShow = true
+    Name = "Phantom Forces | Modern UI",
+    Size = UDim2.new(0, 650, 0, 550)
 })
 
--- Create Tabs with custom icons
-local Tabs = {
-    Legitbot = Window:AddTab('Legitbot', 'rbxassetid://15571371474'),
-    Visuals = Window:AddTab('Visuals', 'rbxassetid://6588984328'),
-    Misc = Window:AddTab('Misc', 'rbxassetid://82085214486223'),
-    Settings = Window:AddTab('Settings', 'rbxassetid://6031280882')
-}
+local LegitTab = Window:AddTab({
+    Name = "Legitbot",
+    Icon = "15571371474"
+})
 
--- ========================================
--- LEGITBOT TAB
--- ========================================
-local AimbotSettings = Tabs.Legitbot:AddLeftGroupbox('Aimbot Settings')
+local VisualsTab = Window:AddTab({
+    Name = "Visuals",
+    Icon = "6588984328"
+})
 
-AimbotSettings:AddToggle('EnableAimbot', {
-    Text = 'Enable Aimbot',
+local MiscTab = Window:AddTab({
+    Name = "Misc",
+    Icon = "82085214486223"
+})
+
+local AimbotSection = LegitTab:AddSection("Aimbot")
+
+AimbotSection:AddToggle({
+    Name = "Enable Aimbot",
     Default = false,
-    Tooltip = 'Enables the aimbot feature',
-    Callback = function(Value)
-        Library:Notify({
-            Text = 'Aimbot ' .. (Value and 'enabled' or 'disabled'),
-            Duration = 2,
-            Type = Value and 'Success' or 'Warning'
-        })
+    Flag = "Aimbot",
+    Callback = function(value)
+        Library:Notify("Aimbot " .. (value and "enabled" or "disabled"), 2)
     end
 })
 
-Toggles.EnableAimbot:OnChanged(function()
-    print('Aimbot changed to:', Toggles.EnableAimbot.Value)
-end)
-
-AimbotSettings:AddToggle('VisibleCheck', {
-    Text = 'Visible Check',
-    Default = true,
-    Tooltip = 'Only aim at visible targets'
-})
-
-AimbotSettings:AddToggle('TeamCheck', {
-    Text = 'Team Check',
-    Default = true,
-    Tooltip = 'Ignore teammates'
-})
-
-AimbotSettings:AddSlider('FOVSize', {
-    Text = 'FOV Size',
-    Default = 100,
-    Min = 50,
+AimbotSection:AddSlider({
+    Name = "FOV Size",
+    Min = 0,
     Max = 500,
-    Rounding = 0,
-    Suffix = 'px',
-    Callback = function(Value)
-        print('FOV Size:', Value)
+    Default = 100,
+    Increment = 10,
+    Flag = "AimbotFOV",
+    Callback = function(value)
+        print("FOV set to:", value)
     end
 })
 
-AimbotSettings:AddSlider('Smoothness', {
-    Text = 'Smoothness',
-    Default = 5,
-    Min = 1,
-    Max = 10,
-    Rounding = 1,
-    Callback = function(Value)
-        print('Smoothness:', Value)
+AimbotSection:AddSlider({
+    Name = "Smoothness",
+    Min = 0,
+    Max = 100,
+    Default = 50,
+    Increment = 1,
+    Flag = "AimbotSmooth",
+    Callback = function(value)
+        print("Smoothness set to:", value)
     end
 })
 
-AimbotSettings:AddDropdown('TargetPart', {
-    Text = 'Target Part',
-    Values = {'Head', 'Torso', 'HumanoidRootPart'},
-    Default = 1,
-    Callback = function(Value)
-        print('Target Part:', Value)
+AimbotSection:AddDropdown({
+    Name = "Target Part",
+    Options = {"Head", "Torso", "Random"},
+    Default = "Head",
+    Flag = "TargetPart",
+    Callback = function(value)
+        print("Targeting:", value)
     end
 })
 
-AimbotSettings:AddSlider('MaxDistance', {
-    Text = 'Max Distance',
-    Default = 1000,
+AimbotSection:AddToggle({
+    Name = "Visible Check",
+    Default = true,
+    Flag = "VisibleCheck"
+})
+
+AimbotSection:AddToggle({
+    Name = "Team Check",
+    Default = true,
+    Flag = "TeamCheck"
+})
+
+AimbotSection:AddKeybind({
+    Name = "Aimbot Key",
+    Default = Enum.KeyCode.E,
+    Flag = "AimbotKey",
+    Callback = function(active)
+        print("Aimbot key:", active and "pressed" or "released")
+    end
+})
+
+local TriggerSection = LegitTab:AddSection("Triggerbot")
+
+TriggerSection:AddToggle({
+    Name = "Enable Triggerbot",
+    Default = false,
+    Flag = "Triggerbot",
+    Callback = function(value)
+        Library:Notify("Triggerbot " .. (value and "enabled" or "disabled"), 2)
+    end
+})
+
+TriggerSection:AddSlider({
+    Name = "Delay (ms)",
+    Min = 0,
+    Max = 500,
+    Default = 50,
+    Increment = 10,
+    Flag = "TriggerDelay"
+})
+
+local ESPSection = VisualsTab:AddSection("ESP")
+
+ESPSection:AddToggle({
+    Name = "Enable ESP",
+    Default = false,
+    Flag = "ESP",
+    Callback = function(value)
+        Library:Notify("ESP " .. (value and "enabled" or "disabled"), 2)
+    end
+})
+
+ESPSection:AddToggle({
+    Name = "Name Tags",
+    Default = true,
+    Flag = "NameTags"
+})
+
+ESPSection:AddToggle({
+    Name = "Display Distance",
+    Default = true,
+    Flag = "Distance"
+})
+
+ESPSection:AddToggle({
+    Name = "Boxes",
+    Default = true,
+    Flag = "Boxes"
+})
+
+ESPSection:AddToggle({
+    Name = "Healthbars",
+    Default = true,
+    Flag = "Healthbars"
+})
+
+ESPSection:AddToggle({
+    Name = "Tracers",
+    Default = false,
+    Flag = "Tracers"
+})
+
+ESPSection:AddColorPicker({
+    Name = "ESP Color",
+    Default = Color3.fromRGB(255, 0, 0),
+    Flag = "ESPColor",
+    Callback = function(color)
+        print("ESP Color changed to:", color)
+    end
+})
+
+ESPSection:AddSlider({
+    Name = "Max Distance",
     Min = 100,
     Max = 5000,
-    Rounding = 0,
-    Suffix = ' studs'
+    Default = 1000,
+    Increment = 100,
+    Flag = "MaxDistance"
 })
 
-local PredictionSettings = Tabs.Legitbot:AddRightGroupbox('Prediction')
+local ChamsSection = VisualsTab:AddSection("Chams")
 
-PredictionSettings:AddToggle('EnablePrediction', {
-    Text = 'Enable Prediction',
+ChamsSection:AddToggle({
+    Name = "Enable Chams",
     Default = false,
-    Tooltip = 'Predicts player movement'
+    Flag = "Chams"
 })
 
-PredictionSettings:AddSlider('PredictionAmount', {
-    Text = 'Prediction Amount',
-    Default = 0.13,
+ChamsSection:AddColorPicker({
+    Name = "Visible Color",
+    Default = Color3.fromRGB(0, 255, 0),
+    Flag = "ChamsVisible"
+})
+
+ChamsSection:AddColorPicker({
+    Name = "Hidden Color",
+    Default = Color3.fromRGB(255, 0, 0),
+    Flag = "ChamsHidden"
+})
+
+ChamsSection:AddSlider({
+    Name = "Transparency",
     Min = 0,
-    Max = 0.5,
-    Rounding = 2
-})
-
-local TriggerBot = Tabs.Legitbot:AddRightGroupbox('Trigger Bot')
-
-TriggerBot:AddToggle('EnableTriggerBot', {
-    Text = 'Enable Trigger Bot',
-    Default = false,
-    Tooltip = 'Automatically shoots when aiming at enemy'
-})
-
-TriggerBot:AddSlider('TriggerDelay', {
-    Text = 'Trigger Delay',
+    Max = 100,
     Default = 50,
-    Min = 0,
-    Max = 500,
-    Rounding = 0,
-    Suffix = 'ms'
+    Increment = 1,
+    Flag = "ChamsTransparency"
 })
 
-TriggerBot:AddLabel('Trigger Key'):AddKeyPicker('TriggerKey', {
-    Default = 'LCtrl',
-    Mode = 'Toggle',
-    Text = 'Trigger Bot Key'
-})
+local CrosshairSection = VisualsTab:AddSection("Crosshair")
 
--- ========================================
--- VISUALS TAB
--- ========================================
-local ESPSettings = Tabs.Visuals:AddLeftGroupbox('Visual Settings')
-
-ESPSettings:AddToggle('ShowFOVCircle', {
-    Text = 'Show FOV Circle',
+CrosshairSection:AddToggle({
+    Name = "Enable Crosshair",
     Default = false,
-    Tooltip = 'Shows the FOV circle'
+    Flag = "Crosshair"
 })
 
-ESPSettings:AddLabel('FOV Color'):AddColorPicker('FOVColor', {
+CrosshairSection:AddToggle({
+    Name = "Show Dot",
+    Default = true,
+    Flag = "CrosshairDot"
+})
+
+CrosshairSection:AddSlider({
+    Name = "Size",
+    Min = 1,
+    Max = 100,
+    Default = 10,
+    Increment = 1,
+    Flag = "CrosshairSize"
+})
+
+CrosshairSection:AddSlider({
+    Name = "Gap",
+    Min = 0,
+    Max = 50,
+    Default = 5,
+    Increment = 1,
+    Flag = "CrosshairGap"
+})
+
+CrosshairSection:AddColorPicker({
+    Name = "Crosshair Color",
     Default = Color3.fromRGB(255, 255, 255),
-    Title = 'FOV Circle Color',
-    Callback = function(Value)
-        print('FOV Color:', Value)
+    Flag = "CrosshairColor"
+})
+
+local WorldSection = VisualsTab:AddSection("World")
+
+WorldSection:AddToggle({
+    Name = "No Recoil",
+    Default = false,
+    Flag = "NoRecoil",
+    Callback = function(value)
+        Library:Notify("No Recoil " .. (value and "enabled" or "disabled"), 2)
     end
 })
 
-ESPSettings:AddToggle('ShowTargetLine', {
-    Text = 'Show Target Line',
+WorldSection:AddToggle({
+    Name = "No Spread",
     Default = false,
-    Tooltip = 'Shows a line to the target'
+    Flag = "NoSpread"
 })
 
-ESPSettings:AddLabel('Target Line Color'):AddColorPicker('TargetLineColor', {
-    Default = Color3.fromRGB(255, 0, 0),
-    Title = 'Target Line Color'
-})
-
-ESPSettings:AddSlider('LineThickness', {
-    Text = 'Line Thickness',
-    Default = 2,
-    Min = 1,
-    Max = 10,
-    Rounding = 0,
-    Suffix = 'px'
-})
-
-local PlayerESP = Tabs.Visuals:AddRightGroupbox('Player ESP')
-
-PlayerESP:AddToggle('EnableESP', {
-    Text = 'Enable ESP',
+WorldSection:AddToggle({
+    Name = "Infinite Ammo",
     Default = false,
-    Tooltip = 'Shows player ESP boxes'
+    Flag = "InfiniteAmmo"
 })
 
-PlayerESP:AddToggle('ShowName', {
-    Text = 'Show Name',
-    Default = true
+WorldSection:AddSlider({
+    Name = "FOV Changer",
+    Min = 70,
+    Max = 120,
+    Default = 90,
+    Increment = 1,
+    Flag = "FOV"
 })
 
-PlayerESP:AddToggle('ShowHealth', {
-    Text = 'Show Health',
-    Default = true
-})
-
-PlayerESP:AddToggle('ShowDistance', {
-    Text = 'Show Distance',
-    Default = true
-})
-
-PlayerESP:AddLabel('ESP Color'):AddColorPicker('ESPColor', {
-    Default = Color3.fromRGB(0, 255, 0),
-    Title = 'ESP Color'
-})
-
--- ========================================
--- MISC TAB
--- ========================================
-local MovementSettings = Tabs.Misc:AddLeftGroupbox('Movement')
-
-MovementSettings:AddToggle('SpeedHack', {
-    Text = 'Speed Hack',
-    Default = false
-})
-
-MovementSettings:AddSlider('WalkSpeed', {
-    Text = 'Walk Speed',
-    Default = 16,
-    Min = 16,
+WorldSection:AddSlider({
+    Name = "Brightness",
+    Min = 0,
     Max = 100,
-    Rounding = 0,
-    Callback = function(Value)
-        if Toggles.SpeedHack.Value then
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    Default = 50,
+    Increment = 1,
+    Flag = "Brightness"
+})
+
+local MovementSection = MiscTab:AddSection("Movement")
+
+MovementSection:AddToggle({
+    Name = "Speed Hack",
+    Default = false,
+    Flag = "Speed",
+    Callback = function(value)
+        Library:Notify("Speed Hack " .. (value and "enabled" or "disabled"), 2)
+    end
+})
+
+MovementSection:AddSlider({
+    Name = "Speed Multiplier",
+    Min = 1,
+    Max = 5,
+    Default = 1.5,
+    Increment = 0.1,
+    Flag = "SpeedMultiplier"
+})
+
+MovementSection:AddToggle({
+    Name = "Fly",
+    Default = false,
+    Flag = "Fly"
+})
+
+MovementSection:AddSlider({
+    Name = "Fly Speed",
+    Min = 10,
+    Max = 200,
+    Default = 50,
+    Increment = 5,
+    Flag = "FlySpeed"
+})
+
+MovementSection:AddToggle({
+    Name = "No Clip",
+    Default = false,
+    Flag = "NoClip"
+})
+
+MovementSection:AddToggle({
+    Name = "Infinite Jump",
+    Default = false,
+    Flag = "InfiniteJump"
+})
+
+MovementSection:AddKeybind({
+    Name = "Fly Key",
+    Default = Enum.KeyCode.F,
+    Flag = "FlyKey",
+    Callback = function(active)
+        if active then
+            Library:Notify("Fly activated", 1)
         end
     end
 })
 
-MovementSettings:AddToggle('JumpPower', {
-    Text = 'Jump Power',
-    Default = false
+local ExploitSection = MiscTab:AddSection("Exploits")
+
+ExploitSection:AddToggle({
+    Name = "Auto Farm",
+    Default = false,
+    Flag = "AutoFarm",
+    Callback = function(value)
+        Library:Notify("Auto Farm " .. (value and "enabled" or "disabled"), 2)
+    end
 })
 
-MovementSettings:AddSlider('JumpHeight', {
-    Text = 'Jump Height',
-    Default = 50,
+ExploitSection:AddToggle({
+    Name = "Auto Heal",
+    Default = false,
+    Flag = "AutoHeal"
+})
+
+ExploitSection:AddToggle({
+    Name = "Auto Reload",
+    Default = false,
+    Flag = "AutoReload"
+})
+
+ExploitSection:AddButton({
+    Name = "Kill All Players",
+    Callback = function()
+        Library:Notify("Kill all executed", 3)
+    end
+})
+
+ExploitSection:AddButton({
+    Name = "Teleport to Spawn",
+    Callback = function()
+        Library:Notify("Teleported to spawn", 2)
+    end
+})
+
+ExploitSection:AddDropdown({
+    Name = "Weapon Select",
+    Options = {"AK47", "M4A1", "AWP", "MP5", "Desert Eagle"},
+    Default = "AK47",
+    Flag = "WeaponSelect",
+    Callback = function(value)
+        print("Selected weapon:", value)
+    end
+})
+
+local LocalPlayerSection = MiscTab:AddSection("Local Player")
+
+LocalPlayerSection:AddToggle({
+    Name = "God Mode",
+    Default = false,
+    Flag = "GodMode",
+    Callback = function(value)
+        Library:Notify("God Mode " .. (value and "enabled" or "disabled"), 2)
+    end
+})
+
+LocalPlayerSection:AddSlider({
+    Name = "Health",
+    Min = 0,
+    Max = 500,
+    Default = 100,
+    Increment = 10,
+    Flag = "Health"
+})
+
+LocalPlayerSection:AddSlider({
+    Name = "Jump Power",
     Min = 50,
-    Max = 200,
-    Rounding = 0
+    Max = 300,
+    Default = 50,
+    Increment = 10,
+    Flag = "JumpPower"
 })
 
-MovementSettings:AddToggle('NoClip', {
-    Text = 'No Clip',
-    Default = false
-})
-
-MovementSettings:AddLabel('NoClip Key'):AddKeyPicker('NoClipKey', {
-    Default = 'E',
-    Mode = 'Toggle',
-    Text = 'NoClip Toggle'
-})
-
-local UtilitySettings = Tabs.Misc:AddRightGroupbox('Utility')
-
-UtilitySettings:AddToggle('AutoFarm', {
-    Text = 'Auto Farm',
-    Default = false
-})
-
-UtilitySettings:AddToggle('AntiAFK', {
-    Text = 'Anti AFK',
-    Default = false
-})
-
-UtilitySettings:AddButton({
-    Text = 'Teleport to Spawn',
-    Func = function()
-        Library:Notify({
-            Text = 'Teleported to spawn!',
-            Duration = 2,
-            Type = 'Success'
-        })
-    end,
-    Tooltip = 'Teleports you to spawn'
-})
-
-UtilitySettings:AddButton({
-    Text = 'Respawn Character',
-    Func = function()
-        game.Players.LocalPlayer.Character.Humanoid.Health = 0
-    end,
-    DoubleClick = true,
-    Tooltip = 'Double click to respawn'
-})
-
-UtilitySettings:AddInput('CustomMessage', {
-    Default = 'Hello World',
-    Numeric = false,
-    Finished = true,
-    Text = 'Custom Message',
-    Placeholder = 'Enter message...',
-    Callback = function(Value)
-        print('Message:', Value)
-    end
-})
-
--- ========================================
--- SETTINGS TAB
--- ========================================
-local UISettings = Tabs.Settings:AddLeftGroupbox('UI Settings')
-
-UISettings:AddToggle('ShowWatermark', {
-    Text = 'Show Watermark',
+LocalPlayerSection:AddToggle({
+    Name = "No Fall Damage",
     Default = false,
-    Callback = function(Value)
-        Library:SetWatermarkVisibility(Value)
-    end
+    Flag = "NoFallDamage"
 })
 
-UISettings:AddToggle('ShowKeybinds', {
-    Text = 'Show Keybind List',
-    Default = false,
-    Callback = function(Value)
-        Library.KeybindFrame.Visible = Value
-    end
+LocalPlayerSection:AddLabel("Hold CTRL to open menu")
+
+LocalPlayerSection:AddImage({
+    Image = "6588984328",
+    Size = UDim2.new(0, 80, 0, 80)
 })
 
-UISettings:AddDropdown('TweenStyle', {
-    Text = 'Tween Style',
-    Values = {'Linear', 'Quad', 'Cubic', 'Quart', 'Quint', 'Sine', 'Expo', 'Back', 'Bounce', 'Elastic'},
-    Default = 2,
-    Callback = function(Value)
-        Library.TweenStyle = Enum.EasingStyle[Value]
-        Library:Notify({
-            Text = 'Tween style changed to ' .. Value,
-            Duration = 2,
-            Type = 'Info'
-        })
-    end
-})
-
-UISettings:AddLabel('Menu Keybind'):AddKeyPicker('MenuKeybind', {
-    Default = 'RightShift',
-    NoUI = true,
-    Text = 'Menu Toggle'
-})
-
-UISettings:AddButton({
-    Text = 'Unload UI',
-    Func = function()
-        Library:Unload()
-    end,
-    DoubleClick = true,
-    Tooltip = 'Double click to unload'
-})
-
-local ThemeSettings = Tabs.Settings:AddRightGroupbox('Theme')
-
-ThemeSettings:AddLabel('Primary Color'):AddColorPicker('PrimaryColor', {
-    Default = Library.Theme.Primary,
-    Title = 'Primary Color',
-    Callback = function(Value)
-        Library.Theme.Primary = Value
-    end
-})
-
-ThemeSettings:AddLabel('Accent Color'):AddColorPicker('AccentColor', {
-    Default = Library.Theme.Accent,
-    Title = 'Accent Color',
-    Callback = function(Value)
-        Library.Theme.Accent = Value
-    end
-})
-
-ThemeSettings:AddLabel('Text Color'):AddColorPicker('TextColor', {
-    Default = Library.Theme.Text,
-    Title = 'Text Color',
-    Callback = function(Value)
-        Library.Theme.Text = Value
-    end
-})
-
-ThemeSettings:AddDivider()
-
-ThemeSettings:AddButton({
-    Text = 'Reset to Default',
-    Func = function()
-        Library:SetTheme({
-            Primary = Color3.fromRGB(45, 45, 50),
-            Secondary = Color3.fromRGB(35, 35, 40),
-            Accent = Color3.fromRGB(120, 80, 255),
-            Text = Color3.fromRGB(255, 255, 255),
-            TextDark = Color3.fromRGB(180, 180, 180),
-            Border = Color3.fromRGB(60, 60, 65)
-        })
-        Library:Notify({
-            Text = 'Theme reset to default',
-            Duration = 2,
-            Type = 'Success'
-        })
-    end
-})
-
-local ConfigSettings = Tabs.Settings:AddRightGroupbox('Configuration')
-
-ConfigSettings:AddInput('ConfigName', {
-    Default = 'Default',
-    Numeric = false,
-    Finished = true,
-    Text = 'Config Name',
-    Placeholder = 'Enter config name...'
-})
-
-ConfigSettings:AddButton({
-    Text = 'Save Current Preset',
-    Func = function()
-        local configName = Options.ConfigName.Value
-        Library:Notify({
-            Text = 'Config "' .. configName .. '" saved!',
-            Duration = 2,
-            Type = 'Success'
-        })
-    end,
-    Tooltip = 'Saves current settings'
-})
-
-ConfigSettings:AddButton({
-    Text = 'Load Preset',
-    Func = function()
-        local configName = Options.ConfigName.Value
-        Library:Notify({
-            Text = 'Config "' .. configName .. '" loaded!',
-            Duration = 2,
-            Type = 'Info'
-        })
-    end,
-    Tooltip = 'Loads saved settings'
-})
-
-ConfigSettings:AddDropdown('PresetList', {
-    Text = 'Saved Presets',
-    Values = {'Default', 'Legit', 'Rage', 'HvH'},
-    Default = 1,
-    Callback = function(Value)
-        print('Selected preset:', Value)
-    end
-})
-
--- ========================================
--- WATERMARK UPDATE
--- ========================================
-local function UpdateWatermark()
-    local time = os.date("*t")
-    local hour = string.format("%02d", time.hour)
-    local min = string.format("%02d", time.min)
-    local sec = string.format("%02d", time.sec)
-    local day = string.format("%02d", time.day)
-    local month = string.format("%02d", time.month)
-    local year = time.year
-    
-    Library:SetWatermark(string.format(
-        'Lunacy Solutions | %s | %s/%s/%s - %s:%s:%s',
-        game.Players.LocalPlayer.Name,
-        day, month, year,
-        hour, min, sec
-    ))
-end
-
--- Update watermark every second
-game:GetService('RunService').RenderStepped:Connect(function()
-    if Toggles.ShowWatermark and Toggles.ShowWatermark.Value then
-        UpdateWatermark()
-    end
-end)
-
--- ========================================
--- KEYBIND FUNCTIONALITY
--- ========================================
--- Set menu toggle keybind
-Library.ToggleKeybind = Options.MenuKeybind
-
--- Listen for menu toggle
-game:GetService('UserInputService').InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    
-    if input.KeyCode.Name == Options.MenuKeybind.Value then
-        Library.MainFrame.Visible = not Library.MainFrame.Visible
-    end
-end)
-
--- ========================================
--- UNLOAD HANDLER
--- ========================================
-Library:OnUnload(function()
-    print('UI Unloaded!')
-    
-    -- Cleanup code here
-    if Toggles.SpeedHack.Value then
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
-    end
-    
-    Library:Notify({
-        Text = 'UI unloaded successfully!',
-        Duration = 3,
-        Type = 'Info'
-    })
-    
-    Library.Unloaded = true
-end)
-
--- ========================================
--- STARTUP NOTIFICATION
--- ========================================
-Library:Notify({
-    Text = 'Lunacy Solutions loaded successfully!',
-    Duration = 3,
-    Type = 'Success'
-})
-
-print('Lunacy Solutions UI loaded!')
-print('Toggle with: ' .. Options.MenuKeybind.Value)
+Library:Notify("UI Loaded Successfully!", 3)
