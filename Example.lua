@@ -1,4 +1,4 @@
-local Library = loadstring(game:HttpGet("YOUR_LIBRARY_URL_HERE"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/joshisfit/joshlib/refs/heads/main/Library.lua"))()
 
 local Window = Library:CreateWindow({
     Name = "Phantom Forces | Modern UI",
