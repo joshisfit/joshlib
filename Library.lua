@@ -26,14 +26,15 @@ getgenv().Options = Options;
 local Library = {
     Registry = {};
     RegistryMap = {};
+
     HudRegistry = {};
 
     FontColor = Color3.fromRGB(255, 255, 255);
-    MainColor = Color3.fromRGB(30, 30, 35);
-    BackgroundColor = Color3.fromRGB(20, 20, 25);
-    AccentColor = Color3.fromRGB(88, 101, 242);
-    OutlineColor = Color3.fromRGB(45, 45, 50);
-    RiskColor = Color3.fromRGB(255, 50, 50);
+    MainColor = Color3.fromRGB(28, 28, 28);
+    BackgroundColor = Color3.fromRGB(20, 20, 20);
+    AccentColor = Color3.fromRGB(0, 85, 255);
+    OutlineColor = Color3.fromRGB(50, 50, 50);
+    RiskColor = Color3.fromRGB(255, 50, 50),
 
     Black = Color3.new(0, 0, 0);
     Font = Enum.Font.Gotham,
@@ -44,35 +45,11 @@ local Library = {
     Signals = {};
     ScreenGui = ScreenGui;
     
-    -- Animation settings
-    TweenSpeed = 0.2;
-    EasingStyle = Enum.EasingStyle.Quad;
-    EasingDirection = Enum.EasingDirection.Out;
+    -- UI Enhancement Settings
+    CornerRadius = UDim.new(0, 6);
+    AnimationSpeed = 0.2;
+    UseGradients = true;
 };
-
--- Helper function to add UI corners
-local function AddCorner(instance, radius)
-    local corner = Instance.new('UICorner')
-    corner.CornerRadius = UDim.new(0, radius or 6)
-    corner.Parent = instance
-    return corner
-end
-
--- Helper function to add gradients
-local function AddGradient(instance, rotation, colors)
-    local gradient = Instance.new('UIGradient')
-    gradient.Rotation = rotation or 90
-    if colors then
-        gradient.Color = colors
-    else
-        gradient.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 220, 225))
-        })
-    end
-    gradient.Parent = instance
-    return gradient
-end
 
 local RainbowStep = 0
 local Hue = 0
@@ -82,6 +59,7 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
 
     if RainbowStep >= (1 / 60) then
         RainbowStep = 0
+
         Hue = Hue + (1 / 400);
 
         if Hue > 1 then
@@ -95,33 +73,46 @@ end))
 
 local function GetPlayersString()
     local PlayerList = Players:GetPlayers();
+
     for i = 1, #PlayerList do
         PlayerList[i] = PlayerList[i].Name;
     end;
+
     table.sort(PlayerList, function(str1, str2) return str1 < str2 end);
+
     return PlayerList;
 end;
 
 local function GetTeamsString()
     local TeamList = Teams:GetTeams();
+
     for i = 1, #TeamList do
         TeamList[i] = TeamList[i].Name;
     end;
+
     table.sort(TeamList, function(str1, str2) return str1 < str2 end);
+    
     return TeamList;
 end;
 
 function Library:SafeCallback(f, ...)
-    if (not f) then return; end;
+    if (not f) then
+        return;
+    end;
+
     if not Library.NotifyOnError then
         return f(...);
     end;
+
     local success, event = pcall(f, ...);
+
     if not success then
         local _, i = event:find(":%d+: ");
+
         if not i then
             return Library:Notify(event);
         end;
+
         return Library:Notify(event:sub(i + 1), 3);
     end;
 end;
@@ -134,17 +125,43 @@ end;
 
 function Library:Create(Class, Properties)
     local _Instance = Class;
+
     if type(Class) == 'string' then
         _Instance = Instance.new(Class);
     end;
+
     for Property, Value in next, Properties do
         _Instance[Property] = Value;
     end;
+
     return _Instance;
+end;
+
+function Library:AddCorners(Instance, Radius)
+    local Corner = Library:Create('UICorner', {
+        CornerRadius = Radius or Library.CornerRadius;
+        Parent = Instance;
+    });
+    return Corner;
+end;
+
+function Library:AddGradient(Instance, Rotation)
+    if not Library.UseGradients then return end;
+    
+    local Gradient = Library:Create('UIGradient', {
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
+        });
+        Rotation = Rotation or 90;
+        Parent = Instance;
+    });
+    return Gradient;
 end;
 
 function Library:ApplyTextStroke(Inst)
     Inst.TextStrokeTransparency = 1;
+
     Library:Create('UIStroke', {
         Color = Color3.new(0, 0, 0);
         Thickness = 1;
@@ -163,11 +180,26 @@ function Library:CreateLabel(Properties, IsHud)
     });
 
     Library:ApplyTextStroke(_Instance);
+
     Library:AddToRegistry(_Instance, {
         TextColor3 = 'FontColor';
     }, IsHud);
 
     return Library:Create(_Instance, Properties);
+end;
+
+function Library:TweenObject(Object, Properties, Duration, EasingStyle, EasingDirection)
+    local Tween = TweenService:Create(
+        Object,
+        TweenInfo.new(
+            Duration or Library.AnimationSpeed,
+            EasingStyle or Enum.EasingStyle.Quad,
+            EasingDirection or Enum.EasingDirection.Out
+        ),
+        Properties
+    );
+    Tween:Play();
+    return Tween;
 end;
 
 function Library:MakeDraggable(Instance, Cutoff)
@@ -191,267 +223,61 @@ function Library:MakeDraggable(Instance, Cutoff)
                     0,
                     Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
                 );
+
                 RenderStepped:Wait();
             end;
         end;
     end)
 end;
 
--- Make window resizable
-function Library:MakeResizable(Instance, MinSize)
-    MinSize = MinSize or Vector2.new(400, 300)
-    
-    local resizeFrame = Library:Create('Frame', {
-        BackgroundTransparency = 1;
-        Position = UDim2.new(1, -20, 1, -20);
-        Size = UDim2.new(0, 20, 0, 20);
+function Library:MakeResizable(Frame)
+    local ResizeHandle = Library:Create('Frame', {
+        BackgroundColor3 = Library.AccentColor;
+        BackgroundTransparency = 0.5;
+        BorderSizePixel = 0;
+        Position = UDim2.new(1, -10, 1, -10);
+        Size = UDim2.new(0, 10, 0, 10);
         ZIndex = 1000;
-        Parent = Instance;
+        Parent = Frame;
     });
     
-    local resizing = false;
+    Library:AddCorners(ResizeHandle, UDim.new(0, 3));
     
-    resizeFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            resizing = true;
+    Library:AddToRegistry(ResizeHandle, {
+        BackgroundColor3 = 'AccentColor';
+    });
+
+    local MinSize = Vector2.new(400, 400);
+    local Resizing = false;
+
+    ResizeHandle.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Resizing = true;
             
-            local startSize = Instance.AbsoluteSize;
-            local startPos = Vector2.new(Mouse.X, Mouse.Y);
-            
-            while resizing and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-                local delta = Vector2.new(Mouse.X - startPos.X, Mouse.Y - startPos.Y);
-                local newSize = Vector2.new(
-                    math.max(MinSize.X, startSize.X + delta.X),
-                    math.max(MinSize.Y, startSize.Y + delta.Y)
+            local StartPos = Vector2.new(Mouse.X, Mouse.Y);
+            local StartSize = Frame.AbsoluteSize;
+
+            while Resizing and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                local Delta = Vector2.new(Mouse.X - StartPos.X, Mouse.Y - StartPos.Y);
+                local NewSize = Vector2.new(
+                    math.max(StartSize.X + Delta.X, MinSize.X),
+                    math.max(StartSize.Y + Delta.Y, MinSize.Y)
                 );
-                
-                Instance.Size = UDim2.fromOffset(newSize.X, newSize.Y);
+
+                Frame.Size = UDim2.fromOffset(NewSize.X, NewSize.Y);
                 RenderStepped:Wait();
             end;
+
+            Resizing = false;
         end;
     end);
-    
-    InputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            resizing = false;
+
+    ResizeHandle.InputEnded:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Resizing = false;
         end;
     end);
 end;
-
-function Library:AddToolTip(InfoStr, HoverInstance)
-    local X, Y = Library:GetTextBounds(InfoStr, Library.Font, 13);
-    local Tooltip = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor,
-        BorderColor3 = Library.OutlineColor,
-        Size = UDim2.fromOffset(X + 10, Y + 8),
-        ZIndex = 100,
-        Parent = Library.ScreenGui,
-        Visible = false,
-        BackgroundTransparency = 0.1;
-    })
-    
-    AddCorner(Tooltip, 4)
-
-    local Label = Library:CreateLabel({
-        Position = UDim2.fromOffset(5, 2),
-        Size = UDim2.fromOffset(X, Y);
-        TextSize = 13;
-        Text = InfoStr,
-        TextColor3 = Library.FontColor,
-        TextXAlignment = Enum.TextXAlignment.Left;
-        ZIndex = Tooltip.ZIndex + 1,
-        Parent = Tooltip;
-    });
-
-    Library:AddToRegistry(Tooltip, {
-        BackgroundColor3 = 'MainColor';
-        BorderColor3 = 'OutlineColor';
-    });
-
-    Library:AddToRegistry(Label, {
-        TextColor3 = 'FontColor',
-    });
-
-    local IsHovering = false
-
-    HoverInstance.MouseEnter:Connect(function()
-        if Library:MouseIsOverOpenedFrame() then return end
-        IsHovering = true
-        Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
-        
-        TweenService:Create(Tooltip, TweenInfo.new(0.15), {
-            BackgroundTransparency = 0;
-        }):Play()
-        
-        Tooltip.Visible = true
-
-        while IsHovering do
-            RunService.Heartbeat:Wait()
-            Tooltip.Position = UDim2.fromOffset(Mouse.X + 15, Mouse.Y + 12)
-        end
-    end)
-
-    HoverInstance.MouseLeave:Connect(function()
-        IsHovering = false
-        
-        TweenService:Create(Tooltip, TweenInfo.new(0.15), {
-            BackgroundTransparency = 1;
-        }):Play()
-        
-        task.delay(0.15, function()
-            if not IsHovering then
-                Tooltip.Visible = false
-            end
-        end)
-    end)
-end
-
-function Library:OnHighlight(HighlightInstance, Instance, Properties, PropertiesDefault)
-    HighlightInstance.MouseEnter:Connect(function()
-        local Reg = Library.RegistryMap[Instance];
-        for Property, ColorIdx in next, Properties do
-            local tween = TweenService:Create(Instance, TweenInfo.new(Library.TweenSpeed, Library.EasingStyle), {
-                [Property] = Library[ColorIdx] or ColorIdx
-            })
-            tween:Play()
-            
-            if Reg and Reg.Properties[Property] then
-                Reg.Properties[Property] = ColorIdx;
-            end;
-        end;
-    end)
-
-    HighlightInstance.MouseLeave:Connect(function()
-        local Reg = Library.RegistryMap[Instance];
-        for Property, ColorIdx in next, PropertiesDefault do
-            local tween = TweenService:Create(Instance, TweenInfo.new(Library.TweenSpeed, Library.EasingStyle), {
-                [Property] = Library[ColorIdx] or ColorIdx
-            })
-            tween:Play()
-            
-            if Reg and Reg.Properties[Property] then
-                Reg.Properties[Property] = ColorIdx;
-            end;
-        end;
-    end)
-end;
-
-function Library:MouseIsOverOpenedFrame()
-    for Frame, _ in next, Library.OpenedFrames do
-        local AbsPos, AbsSize = Frame.AbsolutePosition, Frame.AbsoluteSize;
-        if Mouse.X >= AbsPos.X and Mouse.X <= AbsPos.X + AbsSize.X
-            and Mouse.Y >= AbsPos.Y and Mouse.Y <= AbsPos.Y + AbsSize.Y then
-            return true;
-        end;
-    end;
-end;
-
-function Library:IsMouseOverFrame(Frame)
-    local AbsPos, AbsSize = Frame.AbsolutePosition, Frame.AbsoluteSize;
-    if Mouse.X >= AbsPos.X and Mouse.X <= AbsPos.X + AbsSize.X
-        and Mouse.Y >= AbsPos.Y and Mouse.Y <= AbsPos.Y + AbsSize.Y then
-        return true;
-    end;
-end;
-
-function Library:UpdateDependencyBoxes()
-    for _, Depbox in next, Library.DependencyBoxes do
-        Depbox:Update();
-    end;
-end;
-
-function Library:MapValue(Value, MinA, MaxA, MinB, MaxB)
-    return (1 - ((Value - MinA) / (MaxA - MinA))) * MinB + ((Value - MinA) / (MaxA - MinA)) * MaxB;
-end;
-
-function Library:GetTextBounds(Text, Font, Size, Resolution)
-    local Bounds = TextService:GetTextSize(Text, Size, Font, Resolution or Vector2.new(1920, 1080))
-    return Bounds.X, Bounds.Y
-end;
-
-function Library:GetDarkerColor(Color)
-    local H, S, V = Color3.toHSV(Color);
-    return Color3.fromHSV(H, S, V / 1.5);
-end;
-
-Library.AccentColorDark = Library:GetDarkerColor(Library.AccentColor);
-
-function Library:AddToRegistry(Instance, Properties, IsHud)
-    local Idx = #Library.Registry + 1;
-    local Data = {
-        Instance = Instance;
-        Properties = Properties;
-        Idx = Idx;
-    };
-
-    table.insert(Library.Registry, Data);
-    Library.RegistryMap[Instance] = Data;
-
-    if IsHud then
-        table.insert(Library.HudRegistry, Data);
-    end;
-end;
-
-function Library:RemoveFromRegistry(Instance)
-    local Data = Library.RegistryMap[Instance];
-    if Data then
-        for Idx = #Library.Registry, 1, -1 do
-            if Library.Registry[Idx] == Data then
-                table.remove(Library.Registry, Idx);
-            end;
-        end;
-
-        for Idx = #Library.HudRegistry, 1, -1 do
-            if Library.HudRegistry[Idx] == Data then
-                table.remove(Library.HudRegistry, Idx);
-            end;
-        end;
-
-        Library.RegistryMap[Instance] = nil;
-    end;
-end;
-
-function Library:UpdateColorsUsingRegistry()
-    for Idx, Object in next, Library.Registry do
-        for Property, ColorIdx in next, Object.Properties do
-            if type(ColorIdx) == 'string' then
-                Object.Instance[Property] = Library[ColorIdx];
-            elseif type(ColorIdx) == 'function' then
-                Object.Instance[Property] = ColorIdx()
-            end
-        end;
-    end;
-end;
-
-function Library:GiveSignal(Signal)
-    table.insert(Library.Signals, Signal)
-end
-
-function Library:Unload()
-    for Idx = #Library.Signals, 1, -1 do
-        local Connection = table.remove(Library.Signals, Idx)
-        Connection:Disconnect()
-    end
-
-    if Library.OnUnload then
-        Library.OnUnload()
-    end
-
-    ScreenGui:Destroy()
-end
-
-function Library:OnUnload(Callback)
-    Library.OnUnload = Callback
-end
-
-Library:GiveSignal(ScreenGui.DescendantRemoving:Connect(function(Instance)
-    if Library.RegistryMap[Instance] then
-        Library:RemoveFromRegistry(Instance);
-    end;
-end))
-
--- Continue in next artifact due to length...
-local BaseAddons = {};
 
 local BaseAddons = {};
 
