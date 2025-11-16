@@ -71,6 +71,225 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
     end
 end))
 
+-- Add these functions to your Library table
+
+function Library:GetDarkerColor(Color)
+    local H, S, V = Color:ToHSV();
+    return Color3.fromHSV(H, S, V * 0.8);
+end;
+
+function Library:AddToRegistry(Instance, Properties, IsHud)
+    local Idx = #Library.Registry + 1;
+    local Data = {
+        Instance = Instance;
+        Properties = Properties;
+        Idx = Idx;
+    };
+
+    table.insert(Library.Registry, Data);
+    Library.RegistryMap[Instance] = Data;
+
+    if IsHud then
+        table.insert(Library.HudRegistry, Data);
+    end;
+end;
+
+function Library:RemoveFromRegistry(Instance)
+    local Data = Library.RegistryMap[Instance];
+
+    if Data then
+        for Idx = #Library.Registry, 1, -1 do
+            if Library.Registry[Idx] == Data then
+                table.remove(Library.Registry, Idx);
+            end;
+        end;
+
+        for Idx = #Library.HudRegistry, 1, -1 do
+            if Library.HudRegistry[Idx] == Data then
+                table.remove(Library.HudRegistry, Idx);
+            end;
+        end;
+
+        Library.RegistryMap[Instance] = nil;
+    end;
+end;
+
+function Library:UpdateColorsUsingRegistry()
+    -- First update the main colors in case they are used as a base for other colors
+    Library.AccentColorDark = Library:GetDarkerColor(Library.AccentColor);
+
+    for _, Object in next, Library.Registry do
+        for Property, ColorIdx in next, Object.Properties do
+            if type(ColorIdx) == 'string' then
+                Object.Instance[Property] = Library[ColorIdx];
+            elseif type(ColorIdx) == 'function' then
+                Object.Instance[Property] = ColorIdx();
+            end;
+        end;
+    end;
+end;
+
+function Library:GiveSignal(Signal)
+    table.insert(Library.Signals, Signal);
+    return Signal;
+end;
+
+function Library:OnHighlight(Button, Frame, Properties, PropertiesDefault)
+    Button.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseMovement then
+            for Property, Value in next, Properties do
+                if type(Value) == 'string' then
+                    Frame[Property] = Library[Value];
+                else
+                    Frame[Property] = Value;
+                end;
+            end;
+
+            if Library.RegistryMap[Frame] then
+                Library.RegistryMap[Frame].Properties = Properties;
+            end;
+        end;
+    end);
+
+    Button.InputEnded:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseMovement then
+            for Property, Value in next, PropertiesDefault do
+                if type(Value) == 'string' then
+                    Frame[Property] = Library[Value];
+                else
+                    Frame[Property] = Value;
+                end;
+            end;
+
+            if Library.RegistryMap[Frame] then
+                Library.RegistryMap[Frame].Properties = PropertiesDefault;
+            end;
+        end;
+    end);
+end;
+
+function Library:MouseIsOverOpenedFrame()
+    for Frame, _ in next, Library.OpenedFrames do
+        if Library:IsMouseOverFrame(Frame) then
+            return true;
+        end;
+    end;
+
+    return false;
+end;
+
+function Library:IsMouseOverFrame(Frame)
+    local AbsPos, AbsSize = Frame.AbsolutePosition, Frame.AbsoluteSize;
+
+    if Mouse.X >= AbsPos.X and Mouse.X <= AbsPos.X + AbsSize.X
+        and Mouse.Y >= AbsPos.Y and Mouse.Y <= AbsPos.Y + AbsSize.Y then
+
+        return true;
+    end;
+
+    return false;
+end;
+
+function Library:GetTextBounds(Text, Font, Size, Resolution)
+    local Bounds = TextService:GetTextSize(Text, Size, Font, Resolution or Vector2.new(1920, 1080))
+    return Bounds.X, Bounds.Y
+end;
+
+function Library:MapValue(Value, MinA, MaxA, MinB, MaxB)
+    return (1 - ((Value - MinA) / (MaxA - MinA))) * MinB + ((Value - MinA) / (MaxA - MinA)) * MaxB;
+end;
+
+function Library:GetConfig()
+    local Config = {
+        Toggles = {};
+        Options = {};
+    };
+
+    for Idx, Toggle in next, Toggles do
+        Config.Toggles[Idx] = Toggle.Value;
+    end;
+
+    for Idx, Option in next, Options do
+        if Option.Type == 'ColorPicker' then
+            Config.Options[Idx] = {
+                Value = { Option.Hue, Option.Sat, Option.Vib };
+                Transparency = Option.Transparency;
+            };
+        elseif Option.Type == 'KeyPicker' then
+            Config.Options[Idx] = { Option.Value, Option.Mode };
+        else
+            Config.Options[Idx] = Option.Value;
+        end;
+    end;
+
+    return Config;
+end;
+
+function Library:UpdateDependencyBoxes()
+    for _, Depbox in next, Library.DependencyBoxes do
+        Depbox:Update();
+    end;
+end;
+
+function Library:Unload()
+    for _, Connection in next, Library.Signals do
+        Connection:Disconnect();
+    end;
+
+    for _, Callback in next, Library.UnloadCallbacks do
+        Callback();
+    end;
+
+    ScreenGui:Destroy();
+end;
+
+function Library:OnUnload(Callback)
+    Library.UnloadCallbacks = Library.UnloadCallbacks or {};
+    table.insert(Library.UnloadCallbacks, Callback);
+end;
+
+function Library:AddToolTip(InfoStr, HoverFrame)
+    local X, Y = Library:GetTextBounds(InfoStr, Library.Font, 14);
+    local Tooltip = Library:Create('Frame', {
+        BackgroundColor3 = Library.BackgroundColor;
+        BorderColor3 = Library.OutlineColor;
+        Size = UDim2.fromOffset(X + 6, Y + 6);
+        ZIndex = 100;
+        Visible = false;
+        Parent = Library.ScreenGui;
+    });
+
+    Library:AddToRegistry(Tooltip, {
+        BackgroundColor3 = 'BackgroundColor';
+        BorderColor3 = 'OutlineColor';
+    });
+
+    local Label = Library:CreateLabel({
+        Position = UDim2.fromOffset(3, 3);
+        Size = UDim2.fromOffset(X, Y);
+        Text = InfoStr;
+        TextSize = 14;
+        ZIndex = 101;
+        Parent = Tooltip;
+    });
+
+    local function Update()
+        local mPos = InputService:GetMouseLocation();
+        Tooltip.Position = UDim2.fromOffset(mPos.X + 5, mPos.Y - 3);
+    end;
+
+    HoverFrame.MouseEnter:Connect(function()
+        Tooltip.Visible = true;
+        Update();
+    end);
+
+    HoverFrame.MouseLeave:Connect(function()
+        Tooltip.Visible = false;
+    end);
+
+    HoverFrame.MouseMoved:Connect(Update);
+end;
+
 local function GetPlayersString()
     local PlayerList = Players:GetPlayers();
 
